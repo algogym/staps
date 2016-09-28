@@ -1,0 +1,181 @@
+---
+title: "Datenanalyse in R mit data.table"
+author: "Tim Graf"
+date: "28 September 2016"
+css: slide.css
+output: 
+    ioslides_presentation 
+
+
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+## Was ist ein data.table?
+<div class="textbox">
+Das R-Paket *data.table* ist eine verbesserte und erweitere Form des *data.frame*. 
+</div>
+
+<table class="image">
+<tr>
+<td><img src="dowle.jpg" width="300" height="300"></td>
+<td width="400"></td>
+<td><img src="arun.png" width="300" height="300"></td>
+</tr>
+<tr>
+<td>Matt Dowle</td>
+<td></td>
+<td align="right">Arun Srinivasan</td>
+</tr>
+</table>
+
+## Warum data.table?
+
+- `fread()` ist die schnellste, einfachste und anpassbarste Lesefunktion für Daten aus externen Tabellen. 
+- schnell 
+- sparsam (Arbeitsspeicher)
+- Eine Syntax für alles
+
+## Daten einlesen
+
+Einlesen von Eyetracking-Daten. 20 Spalten, 10287016 Zeilen, etwa 800 MB
+
+```{r normal_csv, echo = TRUE, cache = TRUE}
+
+system.time(df <- read.table("Zyklop4_Freq.txt", header = TRUE))
+
+```
+
+```{r loading, echo = TRUE}
+library(data.table)
+```
+
+```{r fread, echo = TRUE, cache = TRUE}
+system.time(dt <- fread("Zyklop4_Freq.txt", showProgress = FALSE))
+```
+
+
+## data.table-Syntax
+
+<div class="examplecode">
+DT[<span style="color:green">i</span> , <span style="color:red">j</span> , <span style="color:blue">by</span>]
+</div>
+
+Was passiert an den drei Stellen?
+
+>- <span style="color:green">i</span>: Auswahl eines Subsets von Zeilen 
+>- <span style="color:red">j</span>: Auswahl von Spalten (Variablen)
+>- <span style="color:blue">by</span>: Gruppierung anhand von Faktoren
+
+Was für einen Input benötigen die Stellen?
+
+>- <span style="color:green">i</span>: Logischer Ausdruck / Key 
+>- <span style="color:red">j</span>: Variablennamen als Liste / Zuweisungsoperator
+>- <span style="color:blue">by</span>: Variablennamen als Liste
+
+
+
+## Übungsdatenset
+
+- Inspiriert von *self-paced reading* oder *speeded accuracy tradeoff*
+- **subject**: Teilnehmer-ID
+- **phase**: Erste oder zweite Teilnahme 
+- **trial**: Durchlauf des Experiments
+- **cond**: Experimentelle Bedingung (ambig, eindeutig, filler)
+- **rt1, rt2, rt3**: Reaktionszeiten an drei Stellen im Trial 
+
+
+Einlesen der Daten mit `fread()`
+
+```{r read_data_test, echo = TRUE}
+
+dt <- fread("test_data.csv")
+
+```
+
+
+## Ein kurzer Überblick {.smaller}
+
+```{r show_test_data, echo = TRUE}
+
+dt
+
+```
+
+
+## Ein kurzer Überblick {.smaller}
+
+```{r, echo = TRUE}
+str(dt)
+
+c(is.data.table(dt), is.data.frame(dt))
+
+```
+
+## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+
+Zeile 12-15 
+
+```{r, tidy = TRUE, echo = TRUE}
+dt[12:15]
+```
+
+
+## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+
+Alle Zeilen von Teilnehmer 10
+```{r, echo = TRUE}
+dt[subject == 10]
+```
+
+
+## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+
+Alle Zeilen in denen rt2 kleiner als 90 ms ist
+```{r, echo = TRUE}
+dt[rt2 < 90]
+```
+
+## Eine Spalte auswählen: <span style="color:red">j</span> {.smaller}
+
+Spalte rt1 als Vektor (Die ersten 6 Elemente)
+
+```{r, echo = TRUE}
+
+head(dt[, rt1])
+
+```
+
+
+Spalte rt1 als Liste / DT (Die ersten 6 Elemente)
+
+```{r, echo = TRUE}
+
+head(dt[, .(rt1)])
+
+```
+
+## Mehrere Spalten auswählen: <span style="color:red">j</span> {.smaller}
+
+
+```{r, echo = TRUE}
+head(dt[, .(rt1, rt2, rt3)], 3)
+```
+
+
+```{r, echo = TRUE}
+head(dt[, c("rt1", "rt2", "rt3"), with=FALSE], 3)
+```
+
+
+```{r, echo = TRUE}
+head(dt[, 4:6, with=FALSE], 3)
+```
+
+
+
+
