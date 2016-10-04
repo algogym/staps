@@ -75,7 +75,7 @@
 
   </style>
 
-  <link href="data:text/css;charset=utf-8,%2Etextbox%7B%0Acolor%3A%20black%3B%0Abackground%3A%20%23E6E6FA%3B%0A%7D%0A%2Eexamplecode%7B%0Abackground%3A%20%23E6E6FA%3B%0Acolor%3A%20black%3B%0Afont%2Dsize%3A%2040pt%3B%0Afont%2Dfamily%3A%20monospace%3B%0A%7D" rel="stylesheet" type="text/css" />
+  <link href="data:text/css;charset=utf-8,%2Etextbox%7B%0Acolor%3A%20black%3B%0Abackground%3A%20%23E6E6FA%3B%0A%7D%0A%2Eexamplecode%7B%0Abackground%3A%20%23E6E6FA%3B%0Acolor%3A%20black%3B%0Afont%2Dsize%3A%2040pt%3B%0Afont%2Dfamily%3A%20monospace%3B%0A%7D%0A" rel="stylesheet" type="text/css" />
 
 
 </head>
@@ -344,7 +344,216 @@ j</span></h2></hgroup><article  id="mehrere-spalten-auswahlen-j" class="smaller"
 <pre >##         rt1      rt2      rt3
 ## 1: 155.8968 106.6425 241.2878
 ## 2: 191.5810 142.9211 163.0465
-## 3: 113.0903 148.5318 208.3144</pre></article></slide>
+## 3: 113.0903 148.5318 208.3144</pre>
+
+</article></slide><slide class=''><hgroup><h2>Gruppierung anhand von Faktoren: <span style="color:blue">
+by</span></h2></hgroup><article  id="gruppierung-anhand-von-faktoren-by" class="smaller">
+
+<ul class = 'build'>
+<li>Wie erstellt man Statistiken für verschiedene Datengruppen?</li>
+<li>Standard R: <code>split()</code> und <code>apply()</code></li>
+<li><code>Data.table</code>: Einheitliche Syntax für mit <span style="color:blue">
+by</span></li>
+<li>Beispiel:</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Einfaches Beispiel <span style="color:blue">
+by</span></h2></hgroup><article  id="einfaches-beispiel-by" class="smaller">
+
+<p>Mittelwert der Reaktionszeit in Abhängigkeit von Bedingung.</p>
+
+<p><strong>Standard R</strong></p>
+
+<pre class = 'prettyprint lang-r'>with(dt, lapply(split(rt1, cond), mean, na.rm=TRUE))</pre>
+
+<pre >## $ambig
+## [1] 383.999
+## 
+## $eindeutig
+## [1] 137.2745
+## 
+## $filler
+## [1] 137.1714</pre>
+
+<p><strong>Data.table</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, .(mean_rt = mean(rt1, na.rm = TRUE)), .(cond) ]</pre>
+
+<pre >##         cond  mean_rt
+## 1: eindeutig 137.2745
+## 2:     ambig 383.9990
+## 3:    filler 137.1714</pre>
+
+</article></slide><slide class=''><hgroup><h2>Nicht so einfaches Beispiel mit Standard R:</h2></hgroup><article  id="nicht-so-einfaches-beispiel-mit-standard-r" class="smaller">
+
+<p>Mittelwert und Standardabweichung der Reaktionszeit in Abhängigkeit von Bedingung und Phase</p>
+
+<p><strong>Standard R</strong></p>
+
+<pre class = 'prettyprint lang-r'>with(dt, sapply(split(rt1, list(cond, phase)), mean, na.rm=TRUE))</pre>
+
+<pre >##     ambig.1 eindeutig.1    filler.1     ambig.2 eindeutig.2    filler.2 
+##    395.3650    148.9377    149.6491    372.7088    125.6114    124.8601</pre>
+
+<pre class = 'prettyprint lang-r'>with(dt, sapply(split(rt1, list(cond, phase)), sd, na.rm=TRUE))</pre>
+
+<pre >##     ambig.1 eindeutig.1    filler.1     ambig.2 eindeutig.2    filler.2 
+##    74.78533    40.19283    42.00469    76.36567    41.86440    40.96023</pre>
+
+</article></slide><slide class=''><hgroup><h2>Data.table. <span style="color:blue">
+by</span></h2></hgroup><article  id="data.table.-by" class="smaller">
+
+<p><strong>Data.table</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, .(mean_rt = mean(rt1, na.rm = TRUE),
+       sd_rt = sd(rt1, na.rm = TRUE)), .(cond, phase) ]</pre>
+
+<pre >##         cond phase  mean_rt    sd_rt
+## 1: eindeutig     1 148.9377 40.19283
+## 2:     ambig     1 395.3650 74.78533
+## 3:    filler     1 149.6491 42.00469
+## 4: eindeutig     2 125.6114 41.86440
+## 5:     ambig     2 372.7088 76.36567
+## 6:    filler     2 124.8601 40.96023</pre>
+
+</article></slide><slide class=''><hgroup><h2>Kompliziertes Beispiel mit Standard R:</h2></hgroup><article  id="kompliziertes-beispiel-mit-standard-r" class="smaller">
+
+<p>Mittelwert für alle Reaktionszeiten in Abhängigkeit von Bedingung und Phase</p>
+
+<p><strong>Standard R</strong></p>
+
+<pre class = 'prettyprint lang-r'>with(dt, sapply(split(rt1, list(cond, phase)), mean, na.rm=TRUE))</pre>
+
+<pre >##     ambig.1 eindeutig.1    filler.1     ambig.2 eindeutig.2    filler.2 
+##    395.3650    148.9377    149.6491    372.7088    125.6114    124.8601</pre>
+
+<pre class = 'prettyprint lang-r'>with(dt, sapply(split(rt2, list(cond, phase)), mean, na.rm=TRUE))</pre>
+
+<pre >##     ambig.1 eindeutig.1    filler.1     ambig.2 eindeutig.2    filler.2 
+##    204.9784    149.3010    149.3194    179.5596    123.3646    127.0388</pre>
+
+<pre class = 'prettyprint lang-r'>with(dt, sapply(split(rt3, list(cond, phase)), mean, na.rm=TRUE))</pre>
+
+<pre >##     ambig.1 eindeutig.1    filler.1     ambig.2 eindeutig.2    filler.2 
+##    202.9520    197.0960    199.4284    176.5738    172.6635    175.5177</pre>
+
+</article></slide><slide class=''><hgroup><h2>Data.table. <span style="color:blue">
+by</span> und .SD</h2></hgroup><article  id="data.table.-by-und-.sd" class="smaller">
+
+<p><strong>Data.table</strong></p>
+
+<ul>
+<li><code>.SD</code> steht für alle Spalten auf die eine Funktion angewendet werden soll</li>
+<li><code>.SDcols</code> legt diese Spalten fest</li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>dt[, lapply(.SD, mean, na.rm = TRUE), .(cond, phase), .SDcols = c(&quot;rt1&quot;, &quot;rt2&quot;, &quot;rt3&quot;)]</pre>
+
+<pre >##         cond phase      rt1      rt2      rt3
+## 1: eindeutig     1 148.9377 149.3010 197.0960
+## 2:     ambig     1 395.3650 204.9784 202.9520
+## 3:    filler     1 149.6491 149.3194 199.4284
+## 4: eindeutig     2 125.6114 123.3646 172.6635
+## 5:     ambig     2 372.7088 179.5596 176.5738
+## 6:    filler     2 124.8601 127.0388 175.5177</pre>
+
+</article></slide><slide class=''><hgroup><h2>Übung 1</h2></hgroup><article  id="ubung-1">
+
+<p><strong>Es ist Zeit für eine kurze Übung</strong></p>
+
+</article></slide><slide class=''><hgroup><h2>Werte verändern - Der <code>:=</code> - Operator</h2></hgroup><article  id="werte-verandern---der---operator">
+
+<ul>
+<li>Werte werden in <span style="color:red">
+j</span> verändert.</li>
+<li><code>=</code> wird bereits genutzt</li>
+<li>Zum Zuweisen von Werten wird der <code>:=</code> - Operator genutzt.</li>
+<li>Dieser steht auch als Funktion zur Verfügung, wenn mehrere Spalten gleichzeitig verändert werden sollen.</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Ein paar Beispiele</h2></hgroup><article  id="ein-paar-beispiele" class="smaller">
+
+<p><strong>Eine neue Spalte erzeugen (Konstante)</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, konstante := 1]
+head(dt, 3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial konstante
+## 1:       1     1 eindeutig 155.8968 106.6425 241.2878     1         1
+## 2:       1     1 eindeutig 191.5810 142.9211 163.0465     2         1
+## 3:       1     1 eindeutig 113.0903 148.5318 208.3144     3         1</pre>
+
+<p><strong>Eine neue Spalte erzeugen (Funktion)</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, centered_trial := scale(trial, scale = FALSE)]
+head(dt, 3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial centered_trial
+## 1:       1     1 eindeutig 155.8968 106.6425 241.2878     1          -44.5
+## 2:       1     1 eindeutig 191.5810 142.9211 163.0465     2          -43.5
+## 3:       1     1 eindeutig 113.0903 148.5318 208.3144     3          -42.5</pre>
+
+</article></slide><slide class=''><hgroup><h2>Ein paar Beispiele</h2></hgroup><article  id="ein-paar-beispiele-1" class="smaller">
+
+<p><strong>Eine Spalte verändern</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, phase := factor(phase, labels = c(&quot;First&quot;, &quot;Second&quot;))]
+head(dt, 3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial centered_trial
+## 1:       1 First eindeutig 155.8968 106.6425 241.2878     1          -44.5
+## 2:       1 First eindeutig 191.5810 142.9211 163.0465     2          -43.5
+## 3:       1 First eindeutig 113.0903 148.5318 208.3144     3          -42.5</pre>
+
+<p><strong>Eine Spalte löschen</strong></p>
+
+<pre class = 'prettyprint lang-r'>dt[, centered_trial := NULL]
+head(dt, 3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial
+## 1:       1 First eindeutig 155.8968 106.6425 241.2878     1
+## 2:       1 First eindeutig 191.5810 142.9211 163.0465     2
+## 3:       1 First eindeutig 113.0903 148.5318 208.3144     3</pre>
+
+</article></slide><slide class=''><hgroup><h2>Mehrere Werte zuweisen</h2></hgroup><article  id="mehrere-werte-zuweisen" class="smaller">
+
+<p>Eventuell möchte man sich gerne die logarithmierten RTs ansehen und diese Werte als neue Spalten in den data.table einfügen</p>
+
+<pre class = 'prettyprint lang-r'>dt[, `:=`(log_rt1 = log(rt1), 
+          log_rt2 = log(rt2),
+          log_rt3 = log(rt3))]
+
+head(dt, 3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial  log_rt1
+## 1:       1 First eindeutig 155.8968 106.6425 241.2878     1 5.049194
+## 2:       1 First eindeutig 191.5810 142.9211 163.0465     2 5.255311
+## 3:       1 First eindeutig 113.0903 148.5318 208.3144     3 4.728186
+##     log_rt2  log_rt3
+## 1: 4.669482 5.485990
+## 2: 4.962293 5.094035
+## 3: 5.000799 5.339049</pre>
+
+</article></slide><slide class=''><hgroup><h2>Werte in Abhängigkeit von Gruppen</h2></hgroup><article  id="werte-in-abhangigkeit-von-gruppen" class="smaller">
+
+<p><strong><code>:=</code> und <span style="color:blue">
+by</span></strong></p>
+
+<p>Beispiel: Normalisierte RT pro Proband</p>
+
+<pre class = 'prettyprint lang-r'>dt[, rt1_scaled := scale(rt1), .(subject)]</pre>
+
+<p><strong>Verändern der Werte für ein Subset</strong></p>
+
+<p>Addieren einer Konstante zur SubjectID um diese nachher besser ausschließen zu können.</p>
+
+<pre class = 'prettyprint lang-r'>dt[subject == 1, subject := subject + 900L ]
+head(dt,3)</pre>
+
+<pre >##    subject phase      cond      rt1      rt2      rt3 trial
+## 1:     901 First eindeutig 155.8968 106.6425 241.2878     1
+## 2:     901 First eindeutig 191.5810 142.9211 163.0465     2
+## 3:     901 First eindeutig 113.0903 148.5318 208.3144     3</pre></article></slide>
 
 
   <slide class="backdrop"></slide>

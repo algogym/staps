@@ -176,6 +176,189 @@ head(dt[, c("rt1", "rt2", "rt3"), with=FALSE], 3)
 head(dt[, 4:6, with=FALSE], 3)
 ```
 
+## Gruppierung anhand von Faktoren: <span style="color:blue">by</span> {.smaller}
+
+>- Wie erstellt man Statistiken für verschiedene Datengruppen?
+>- Standard R: `split()` und `apply()` 
+>- `Data.table`: Einheitliche Syntax für mit <span style="color:blue">by</span>
+>- Beispiel: 
 
 
+
+## Einfaches Beispiel <span style="color:blue">by</span> {.smaller}
+
+Mittelwert der Reaktionszeit in Abhängigkeit von Bedingung.
+
+**Standard R**
+
+```{r, echo = TRUE}
+
+with(dt, lapply(split(rt1, cond), mean, na.rm=TRUE))
+
+```
+
+**Data.table**
+
+```{r, echo = TRUE}
+
+dt[, .(mean_rt = mean(rt1, na.rm = TRUE)), .(cond) ]
+
+```
+
+## Nicht so einfaches Beispiel mit Standard R: {.smaller}
+
+Mittelwert und Standardabweichung der Reaktionszeit in Abhängigkeit von Bedingung und Phase
+
+**Standard R**
+
+```{r, echo = TRUE, eval=TRUE}
+
+with(dt, sapply(split(rt1, list(cond, phase)), mean, na.rm=TRUE))
+with(dt, sapply(split(rt1, list(cond, phase)), sd, na.rm=TRUE))
+
+```
+
+
+## Data.table. <span style="color:blue">by</span> {.smaller}
+
+
+**Data.table**
+
+```{r, echo = TRUE}
+
+dt[, .(mean_rt = mean(rt1, na.rm = TRUE),
+       sd_rt = sd(rt1, na.rm = TRUE)), .(cond, phase) ]
+
+```
+
+## Kompliziertes Beispiel mit Standard R: {.smaller}
+
+Mittelwert für alle Reaktionszeiten in Abhängigkeit von Bedingung und Phase
+
+**Standard R**
+
+```{r, echo = TRUE, eval=TRUE}
+
+with(dt, sapply(split(rt1, list(cond, phase)), mean, na.rm=TRUE))
+with(dt, sapply(split(rt2, list(cond, phase)), mean, na.rm=TRUE))
+with(dt, sapply(split(rt3, list(cond, phase)), mean, na.rm=TRUE))
+
+```
+
+
+
+
+## Data.table. <span style="color:blue">by</span> und .SD {.smaller}
+
+
+**Data.table**
+
+* `.SD` steht für alle Spalten auf die eine Funktion angewendet werden soll
+* `.SDcols` legt diese Spalten fest
+
+```{r, echo = TRUE}
+
+dt[, lapply(.SD, mean, na.rm = TRUE), .(cond, phase), .SDcols = c("rt1", "rt2", "rt3")]
+
+```
+
+## Übung 1
+
+**Es ist Zeit für eine kurze Übung**
+
+## Werte verändern - Der `:=` - Operator
+
+* Werte werden in <span style="color:red">j</span> verändert.
+* `=` wird bereits genutzt
+* Zum Zuweisen von Werten wird der `:=` - Operator genutzt.
+* Dieser steht auch als Funktion zur Verfügung, wenn mehrere Spalten gleichzeitig verändert werden sollen.
+
+
+## Ein paar Beispiele {.smaller} 
+
+**Eine neue Spalte erzeugen (Konstante)**
+
+```{r, echo = TRUE}
+dt[, konstante := 1]
+head(dt, 3)
+```
+
+**Eine neue Spalte erzeugen (Funktion)**
+
+```{r}
+dt[, konstante := NULL]
+```
+
+
+```{r, echo = TRUE}
+dt[, centered_trial := scale(trial, scale = FALSE)]
+head(dt, 3)
+```
+
+## Ein paar Beispiele {.smaller}
+
+**Eine Spalte verändern**
+
+```{r, echo = TRUE}
+dt[, phase := factor(phase, labels = c("First", "Second"))]
+head(dt, 3)
+```
+
+**Eine Spalte löschen**
+
+```{r, echo = TRUE}
+dt[, centered_trial := NULL]
+head(dt, 3)
+```
+
+## Mehrere Werte zuweisen {.smaller}
+
+Eventuell möchte man sich gerne die logarithmierten RTs ansehen und diese Werte als neue Spalten in den data.table einfügen
+
+```{r, echo = TRUE, warning=FALSE}
+dt[, `:=`(log_rt1 = log(rt1), 
+          log_rt2 = log(rt2),
+          log_rt3 = log(rt3))]
+
+head(dt, 3)
+```
+
+## Werte in Abhängigkeit von Gruppen {.smaller}
+
+**`:=` und <span style="color:blue">by</span>**
+
+Beispiel: Normalisierte RT pro Proband
+
+```{r}
+dt[, c("log_rt1", "log_rt2", "log_rt3") := NULL, with = FALSE]
+```
+
+```{r, echo = TRUE, eval = FALSE}
+
+dt[, rt1_scaled := scale(rt1), .(subject)]
+
+```
+
+
+**Verändern der Werte für ein Subset**
+
+Addieren einer Konstante zur SubjectID um diese nachher besser ausschließen zu können.
+
+```{r, echo = TRUE}
+
+dt[subject == 1, subject := subject + 900L ]
+head(dt,3)
+
+```
+
+
+## Übung 2
+
+
+Übung zum Zuweisen von Werten 
+
+## Keys
+
+* Keys sind Zeilennamen mit Superkräften
+* Ermöglichen das schnelle Subsetten bei sehr großen Datentabellen
 
