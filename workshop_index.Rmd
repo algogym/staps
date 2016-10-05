@@ -59,7 +59,7 @@ install.packages("data.table")
 
 # Übungen
 
-Der Workshop beinhaltet 3 kleine [Übungen](uebungen.html) , welche absolviert werden können. Mögliche Lösungen können durch einen Klick auf Code angezeigt werden. 
+Der Workshop beinhaltet 3 kleine [Übungen](workshop_uebungen.html) , welche absolviert werden können. Mögliche Lösungen können durch einen Klick auf Code angezeigt werden. 
 
 
 # Materialien 
