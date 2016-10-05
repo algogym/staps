@@ -1,0 +1,221 @@
+---
+title: "Datenanalyse in R mit data.table - Übungen"
+author: "Tim Graf"
+date: "06.10.2016"
+output:
+    html_document:
+        toc: True
+        theme: paper
+        highlight: default
+        code_folding: hide
+css: slide.css
+---
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+#  rmdformats::readthedown:
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Übersicht: 
+
+## data.table-Syntax
+
+<div class="examplecodeb">
+DT[<span style="color:green">i</span> , <span style="color:red">j</span> , <span style="color:blue">by</span>]
+</div>
+
+Was passiert an den drei Stellen?
+
+* <span style="color:green">i</span>: Auswahl eines Subsets von Zeilen 
+* <span style="color:red">j</span>: Auswahl von Spalten (Variablen)
+* <span style="color:blue">by</span>: Gruppierung anhand von Faktoren
+
+Was für einen Input benötigen die Stellen?
+
+* <span style="color:green">i</span>: Logischer Ausdruck / Key 
+* <span style="color:red">j</span>: Variablennamen als Liste / Zuweisungsoperator
+* <span style="color:blue">by</span>: Variablennamen als Liste
+
+
+## Übungsdatenset: datatable_workshop.csv
+
+- Inspiriert von *self-paced reading* oder *speeded accuracy tradeoff*
+- **subject**: Teilnehmer-ID
+- **phase**: Erste oder zweite Teilnahme 
+- **trial**: Durchlauf des Experiments
+- **cond**: Experimentelle Bedingung (ambig, eindeutig, filler)
+- **rt1, rt2, rt3**: Reaktionszeiten an drei Stellen im Trial 
+
+# Übung 1 {.tabset .tabset-pills}
+
+## Daten einlesen und Überblick verschaffen
+
+* Ladet das Paket mit `library(data.table)`
+* Lest die `datatable_workshop.csv` mit Hilfe der `fread()`-Funktion
+* Verschafft euch einen Überblick
+
+```{r, eval = FALSE}
+library(data.table)
+dt <- fread("datatable_workshop.csv")
+
+dt
+
+summary(dt)
+
+str(dt)
+```
+
+
+## Subsets bilden
+
+1. Bildet das Subset, für das alle rt2-Werte größer als 200ms sind.
+2. Bildet das Subset der Daten, welches keine *Filler* enthält
+3. Bildet das Subset, welches alle `NA`-Werte für rt1, rt2 und rt3 beinhaltet.
+
+
+```{r, eval = FALSE}
+# 1
+dt[rt2 > 200]
+
+# 2
+dt[cond != "filler"]
+
+# 3
+dt[(is.na(rt1) | is.na(rt2) | is.na(rt3))]
+```
+
+
+
+
+## Spalten auswählen
+
+1. Übergebt die Spalte `phase` als Vektor in the `table()`-Funktion
+2. Zeigt für jeweils den ersten Trial jedes Probanden `rt1, rt2, rt3` als data.table an.
+
+```{r, eval = FALSE}
+# 1
+table(dt[, phase])
+
+# 2
+dt[trial == 1, .(rt1, rt2, rt3)]
+```
+
+
+## Gruppierungen
+
+1. Ermittelt den Median von `rt1` für jede Bedingung.  
+2. Zählt die Anzahl der `NAs` in rt2 pro Bedingung
+3. Was ist minimale Reaktionszeit in `rt3` in Trial 5 pro Phase
+1. Ermittelt den Median von `rt2` und `rt3` für jede Bedingung
+
+
+```{r, eval = FALSE}
+# 1
+dt[, .(median_rt = median(rt1, na.rm = TRUE)), .(cond)]
+
+# 2
+dt[is.na(rt2), .N, .(cond)]
+
+# 3
+dt[trial == 5, .(min_rt = min(rt3, na.rm = TRUE)), .(phase)]
+
+# 4
+dt[, lapply(.SD, median, na.rm = TRUE), .(cond), .SDcols = c("rt2", "rt3")]
+```
+
+# Übung 2 {.tabset .tabset-pills}
+
+## Neue Spalten erstellen
+
+1. Erstellt eine Spalte `rt1_rounded` mit der auf zwei Stellen gerundeten `rt1`  
+    + Nutzt `round(wert, 2)  
+2. Erstellt eine Spalte `total_time` mit der Summe aller drei RTs.
+3. Entfernt die Spalte `rt1_rounded` 
+
+```{r, eval = FALSE}
+# 1
+dt[, rt1_rounded := round(rt1, 2)]
+
+# 2
+dt[, total_time := (rt1 + rt2 + rt3)]
+
+# 3
+dt[, rt1_rounded := NULL]
+```
+
+## Mehrere Spalten auf einmal erstellen
+
+1. Erstellt für `rt1` und `rt2` jeweils eine Spalte mit dem dekadischen log-Wert. Nutzt `:=` als Funktion 
+
+```{r, eval = FALSE}
+dt[, `:=`(log_rt1 = log10(rt1),
+          log_rt2 = log10(rt2))]
+```
+
+## Normalisieren 
+
+* Normalisiert die Spalte `rt1` für jeden Probanden
+    + Erstellt eine Spalte mit dem Mittelwert pro Proband
+    + Erstellt eine Spalte mit der Standardabweichung pro Proband
+    + Subtrahiert den Mittelwert von jeder rt-Wert und dividiert durch die Standardabweichung  
+    
+```{r, eval = FALSE}
+dt[, `:=`(mean_rt = mean(rt1, na.rm = TRUE),
+    sd_rt = sd(rt1, na.rm = TRUE)), .(subject) ]
+
+dt[, rt1_normalized := (rt1-mean_rt)/sd_rt]
+```
+
+    
+# Übung 3 {.tabset .tabset-pills}
+
+## Keys benutzen
+
+1. Setzt einen Key für die Spalte `cond`
+2. Wählt das Subset, welches keine Filler enthält mit Hilfe des Keys
+3. Bestimmt den Median für dieses Subset für rt2
+4. Bestimmt den Median für dieses Subset für rt2 pro Bedingung und Phase
+
+```{r, eval = FALSE}
+# 1
+setkey(dt, cond)
+
+# 2
+dt[c("eindeutig", "ambig")]
+
+# 3
+dt[c("eindeutig", "ambig"), median(rt2, na.rm = TRUE)]
+
+# 4
+dt[c("eindeutig", "ambig"), median(rt2, na.rm = TRUE), .(cond, phase) ]
+```
+
+
+## Verketten 
+
+* Nutzt Verkettung um die folgenden Operationen auszuführen
+    + Erstellt eine Spalte mit dem log von rt3
+    + Berechnet den mittleren log_rt3 werden pro Bedingung und Phase
+    + Ordnet die Tabelle erst nach Phase, dann nach Bedingung `?order`
+
+
+```{r, eval = FALSE}
+
+dt[, log_rt3 := log(rt3)][, mean(log_rt3, na.rm = TRUE), .(cond, phase)][order(phase, cond)]
+```
+
+----------------------------------------------------
+

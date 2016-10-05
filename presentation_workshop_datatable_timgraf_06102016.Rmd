@@ -101,18 +101,14 @@ Was für einen Input benötigen die Stellen?
 Einlesen der Daten mit `fread()`
 
 ```{r read_data_test, echo = TRUE}
-
 dt <- fread("test_data.csv")
-
 ```
 
 
 ## Ein kurzer Überblick 
 
 ```{r show_test_data, echo = TRUE}
-
 dt
-
 ```
 
 
@@ -122,8 +118,28 @@ dt
 str(dt)
 
 c(is.data.table(dt), is.data.frame(dt))
-
 ```
+
+## Spaltennamen bearbeiten
+
+```{r, echo = TRUE}
+names(dt)
+```
+
+Es gibt im Datenset zwei Spaltennamen mit _abc als Suffix, was unnötig ist.
+
+```{r, echo = TRUE}
+setnames(dt, c("trial_abc", "phase_abc"), c("trial", "phase"))
+names(dt)
+```
+
+Man kann auch alle Spaltennamen auf einmal ändern, indem man einen Namensvektor verwendet, der so lang ist wie die Spaltenanzahl
+```{r, echo = TRUE}
+
+setnames(dt, c("subject", "phase", "cond", "rt1", "rt2", "rt3", "trial") )     
+```
+
+
 
 ## Zeilen-Subsets: <span style="color:green">i</span> 
 

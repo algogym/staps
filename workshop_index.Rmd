@@ -1,0 +1,73 @@
+---
+title: "Workshop: Datenanalyse in R mit data.table"
+author: "Tim Graf"
+date: "06.10.2016"
+output:
+    html_document:
+        theme: paper
+        highlight: default
+css: slide.css
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+#  rmdformats::readthedown:
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Abstract
+
+Obwohl für die schnelle Verarbeitung von großen Datenmengen entwickelt, kann das Paket `data.table` für R auch den Workflow für die Analyse linguistischer Daten stark verbessern. Dies gilt sowohl für experimentelle als auch für Korpusdaten. Das Paket erweitert die Funktionalität der R `data.frames` durch viele nützliche Operationen. Vor allem die Möglichkeiten zur schnellen Anwendung von
+Funktionen in Abhängigkeit von Datengruppierungen erleichtern den Alltag bei der Datenanalyse enorm.
+Der Workshop soll eine praktische Einführung in das `data.table`-Paket geben. 
+
+Die folgenden Bereiche sollen abgedeckt werden.
+
+* Einlesen der Daten mit `fread()`  
+* Einführung in die allgemeine `data.table`-Syntax  
+* Erstellen und Subsetting von `data.tables`  
+* Auswählen, Erzeugen und Löschen von Variablen  
+* Zusammenfassen von Daten  
+* Nutzen von speziellen `data.table-Variablen zum noch effektiveren
+Zusammenfassen von Datensets
+* Ausführen von Funktionen in Abhängigkeit von Datengruppierungen
+* Verketten von Befehlen
+* Nutzen von keys zum vereinfachten Zugriff auf Datengruppierungen
+
+Der Workshop richtet sich an alle Personen, die R bei der Datenanalyse einsetzen oder einsetzen wollen. Es wird keinerlei Vorwissen vorausgesetzt. Zum leichteren Nachvollziehen wird die Installation von R und RStudio empfohlen.
+
+# Vorbereitung
+
+* RStudio öffnen und ein neues Projekt erstellen
+    + Oder ein Arbeitsverzeichnis festlegen  
+* data.table installieren  
+```{r, eval = FALSE, echo = TRUE}
+install.packages("data.table")
+```
+* Das Übungsdatenset [herunterladen](datatable_workshop.csv) und in das Arbeitsverzeichnis kopieren
+
+# Übungen
+
+Der Workshop beinhaltet 3 kleine [Übungen](uebungen.html) , welche absolviert werden können. Mögliche Lösungen können durch einen Klick auf Code angezeigt werden. 
+
+
+# Materialien 
+
+* [Präsentation](presentation_workshop_datatable_timgraf_06102016.html)  
+* [Übungsdatenset](datatable_workshop.csv)  
+* [Github-Page](https://github.com/tgraf0/staps) mit dem kompletten Code für Übung, Datengenerierung und Präsentation  
+
+
+
+
