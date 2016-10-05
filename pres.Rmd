@@ -2,12 +2,10 @@
 title: "Datenanalyse in R mit data.table"
 author: "Tim Graf"
 date: "28 September 2016"
-css: slide.css
 output: 
-    ioslides_presentation 
-
-
-
+    ioslides_presentation:
+        widescreen: true
+css: slide.css
 ---
 
 ```{r setup, include=FALSE}
@@ -32,6 +30,17 @@ Das R-Paket *data.table* ist eine verbesserte und erweitere Form des *data.frame
 <td align="right">Arun Srinivasan</td>
 </tr>
 </table>
+
+## Workshop
+
+* Hands-On Einführung in `data.table`
+* Wichtige Konzepte und Befehle
+* Schwerpunkte:
+    + Daten zusammenfassen
+    + Daten ändern
+* Leider keine Schwerpunkte
+    + Joins von verschiedenen Datenquellen
+    + Reshaping
 
 ## Warum data.table?
 
@@ -98,7 +107,7 @@ dt <- fread("test_data.csv")
 ```
 
 
-## Ein kurzer Überblick {.smaller}
+## Ein kurzer Überblick 
 
 ```{r show_test_data, echo = TRUE}
 
@@ -107,7 +116,7 @@ dt
 ```
 
 
-## Ein kurzer Überblick {.smaller}
+## Ein kurzer Überblick 
 
 ```{r, echo = TRUE}
 str(dt)
@@ -116,7 +125,7 @@ c(is.data.table(dt), is.data.frame(dt))
 
 ```
 
-## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+## Zeilen-Subsets: <span style="color:green">i</span> 
 
 Zeile 12-15 
 
@@ -125,7 +134,7 @@ dt[12:15]
 ```
 
 
-## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+## Zeilen-Subsets: <span style="color:green">i</span> 
 
 Alle Zeilen von Teilnehmer 10
 ```{r, echo = TRUE}
@@ -133,7 +142,7 @@ dt[subject == 10]
 ```
 
 
-## Zeilen-Subsets: <span style="color:green">i</span> {.smaller}
+## Zeilen-Subsets: <span style="color:green">i</span> 
 
 Alle Zeilen in denen rt2 kleiner als 90 ms ist
 ```{r, echo = TRUE}
@@ -142,7 +151,7 @@ dt[rt2 < 90]
 
 ## Eine Spalte auswählen: <span style="color:red">j</span> {.smaller}
 
-Spalte rt1 als Vektor (Die ersten 6 Elemente)
+**Spalte rt1 als Vektor (Die ersten 6 Elemente)**
 
 ```{r, echo = TRUE}
 
@@ -151,7 +160,7 @@ head(dt[, rt1])
 ```
 
 
-Spalte rt1 als Liste / DT (Die ersten 6 Elemente)
+**Spalte rt1 als Liste / DT (Die ersten 6 Elemente)**
 
 ```{r, echo = TRUE}
 
@@ -176,16 +185,17 @@ head(dt[, c("rt1", "rt2", "rt3"), with=FALSE], 3)
 head(dt[, 4:6, with=FALSE], 3)
 ```
 
-## Gruppierung anhand von Faktoren: <span style="color:blue">by</span> {.smaller}
+## Gruppierung anhand von Faktoren: <span style="color:blue">by</span> 
 
 >- Wie erstellt man Statistiken für verschiedene Datengruppen?
 >- Standard R: `split()` und `apply()` 
->- `Data.table`: Einheitliche Syntax für mit <span style="color:blue">by</span>
->- Beispiel: 
+>- `data.table`: Einheitliche Syntax mit <span style="color:blue">by</span>
+>- Alternativen: Hadley Wickhams `dplyr`-Paket
+ 
 
 
 
-## Einfaches Beispiel <span style="color:blue">by</span> {.smaller}
+## Einfaches Beispiel {.smaller}
 
 Mittelwert der Reaktionszeit in Abhängigkeit von Bedingung.
 
@@ -205,11 +215,10 @@ dt[, .(mean_rt = mean(rt1, na.rm = TRUE)), .(cond) ]
 
 ```
 
-## Nicht so einfaches Beispiel mit Standard R: {.smaller}
+## Nicht so einfaches Beispiel mit Standard R: 
 
 Mittelwert und Standardabweichung der Reaktionszeit in Abhängigkeit von Bedingung und Phase
 
-**Standard R**
 
 ```{r, echo = TRUE, eval=TRUE}
 
@@ -219,7 +228,7 @@ with(dt, sapply(split(rt1, list(cond, phase)), sd, na.rm=TRUE))
 ```
 
 
-## Data.table. <span style="color:blue">by</span> {.smaller}
+## Data.table: <span style="color:blue">by</span> 
 
 
 **Data.table**
@@ -235,7 +244,6 @@ dt[, .(mean_rt = mean(rt1, na.rm = TRUE),
 
 Mittelwert für alle Reaktionszeiten in Abhängigkeit von Bedingung und Phase
 
-**Standard R**
 
 ```{r, echo = TRUE, eval=TRUE}
 
@@ -262,9 +270,21 @@ dt[, lapply(.SD, mean, na.rm = TRUE), .(cond, phase), .SDcols = c("rt1", "rt2", 
 
 ```
 
+
+## Zeilen zählen mit .N 
+
+Oftmals möchte man wissen, wie viele Beobachtungen es für eine bestimmte Kombination von Variablen gibt. Hier hilft `.N`
+
+```{r, echo = TRUE}
+dt[, .N] 
+nrow(dt)
+
+dt[, .N, .(cond)]
+```
+
 ## Übung 1
 
-**Es ist Zeit für eine kurze Übung**
+<div align=center>**Es ist Zeit für eine kurze Übung**</div>
 
 ## Werte verändern - Der `:=` - Operator
 
@@ -311,7 +331,7 @@ dt[, centered_trial := NULL]
 head(dt, 3)
 ```
 
-## Mehrere Werte zuweisen {.smaller}
+## Mehrere Werte zuweisen
 
 Eventuell möchte man sich gerne die logarithmierten RTs ansehen und diese Werte als neue Spalten in den data.table einfügen
 
@@ -323,7 +343,7 @@ dt[, `:=`(log_rt1 = log(rt1),
 head(dt, 3)
 ```
 
-## Werte in Abhängigkeit von Gruppen {.smaller}
+## Werte in Abhängigkeit von Gruppen
 
 **`:=` und <span style="color:blue">by</span>**
 
@@ -355,10 +375,122 @@ head(dt,3)
 ## Übung 2
 
 
-Übung zum Zuweisen von Werten 
+<div align=center>**Es ist Zeit für eine kurze Übung**</div>
 
 ## Keys
 
 * Keys sind Zeilennamen mit Superkräften
 * Ermöglichen das schnelle Subsetten bei sehr großen Datentabellen
+
+* Keys für Spalten werden mit `setkey()` gesetzt
+* Der `data.table` wird nach dieser Spalte sortiert
+
+
+## Ein `key`-Beispiel {.smaller}
+
+```{r, echo = TRUE}
+dt[1:6]
+
+setkey(dt, cond)
+
+dt[1:6]
+
+```
+
+
+
+
+## Schnelles Subsetten - Ein Wert
+
+
+```{r, echo = TRUE}
+
+dt["ambig"]
+
+```
+
+
+## Schnelles Subsetten - Mehrere Werte
+
+
+```{r, echo = TRUE}
+
+dt[c("ambig", "filler")]
+
+```
+
+## Ein Key für mehrere Spalten 
+
+```{r, echo = TRUE}
+setkeyv(dt, c("cond", "phase"))
+
+dt[.("ambig", "First")]
+
+```
+
+## Ein paar Beispiele für den Einsatz von Keys {.smaller}
+
+
+```{r, echo = TRUE}
+setkey(dt, cond)
+dt["ambig", max(rt1, na.rm = TRUE)]
+dt["eindeutig", min(rt2, na.rm = TRUE), .(subject)][1:10]
+```
+
+## Ein paar Beispiele für den Einsatz von Keys 
+
+```{r, echo = TRUE}
+setkeyv(dt, c("cond", "phase"))
+dt[.("ambig", "First"), max(rt3, na.rm = TRUE) , .(subject)][1:10]
+
+```
+
+## Verketten von Befehlen
+
+* Es ist möglich, mehrere `data.table`-Operationen zu verketten. 
+* Aus Gründen der Nachvollziehbarkeit sollte damit aber nicht übertrieben werden. 
+* Nützlich um neu erstellte Spalten zusammen zu fassen oder Subsets anzuzeigen.
+
+>- Zum Verketten einfach eine weitere Klammer anfügen dt[<span style="color:green">i</span> , <span style="color:red">j</span> , <span style="color:blue">by</span>][<span style="color:green">i</span> , <span style="color:red">j</span> , <span style="color:blue">by</span>]
+
+## Beispiel: Verkettung
+
+* Log von rt1 erstellen
+* Maximum von log_rt1 pro Proband finden
+* Nur die Werte jedes zweiten Probanden anzeigen
+
+
+
+```{r, echo = TRUE, warning= FALSE}
+
+dt[, log_rt1 := log(rt1)][, max(log_rt1, na.rm = TRUE), .(subject)][subject %in% seq(1,20, 2)]
+
+```
+
+## Übung 3
+
+
+<div align=center>**Es ist Zeit für eine letzte Übung**</div>
+
+
+
+## Weitere Quellen zu data.table
+
+```{r, echo = TRUE, eval = FALSE}
+vignette("datatable-intro-vignette")
+vignette("datatable-reference-semantics")
+vignette("datatable-keys-fast-subset")
+vignette("datatable-reshape")
+```
+
+* [Github-Webseite des Pakets](https://github.com/Rdatatable/data.table/wiki/Getting-started)
+* [Datacamp](http://www.datacamp.com)
+ + Basics sind kostenlos
+ + Weiterführende Kurse für etwa 25 $
+* [Cheat Sheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
+
+
+## Vielen Dank
+
+![](business-tips.png)
 
