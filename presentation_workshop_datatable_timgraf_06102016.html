@@ -179,14 +179,14 @@ Arun Srinivasan
 <pre class = 'prettyprint lang-r'>system.time(df &lt;- read.table(&quot;Zyklop4_Freq.txt&quot;, header = TRUE))</pre>
 
 <pre >##    user  system elapsed 
-##   0.004   0.001   0.011</pre>
+## 146.485  11.211 165.623</pre>
 
 <pre class = 'prettyprint lang-r'>library(data.table)</pre>
 
 <pre class = 'prettyprint lang-r'>system.time(dt &lt;- fread(&quot;Zyklop4_Freq.txt&quot;, showProgress = FALSE))</pre>
 
 <pre >##    user  system elapsed 
-##   0.002   0.000   0.002</pre>
+##  12.103   1.058  13.781</pre>
 
 </article></slide><slide class=''><hgroup><h2>data.table-Syntax</h2></hgroup><article  id="data.table-syntax">
 
@@ -471,7 +471,7 @@ by</span></h2></hgroup><article  id="data.table-by">
 ##    202.9520    197.0960    199.4284    176.5738    172.6635    175.5177</pre>
 
 </article></slide><slide class=''><hgroup><h2>Data.table. <span style="color:blue">
-by</span> und .SD</h2></hgroup><article  id="data.table.-by-und-.sd" class="smaller">
+by</span> und .SD</h2></hgroup><article  id="data.table.-by-und-.sd">
 
 <p><strong>Data.table</strong></p>
 
@@ -790,9 +790,12 @@ vignette(&quot;datatable-reshape&quot;)</pre>
 
 <ul>
 <li><a href='https://github.com/Rdatatable/data.table/wiki/Getting-started' title=''>Github-Webseite des Pakets</a></li>
-<li><a href='http://www.datacamp.com' title=''>Datacamp</a></li>
+<li><a href='http://www.datacamp.com' title=''>Datacamp</a>
+
+<ul>
 <li>Basics sind kostenlos</li>
 <li>Weiterführende Kurse für etwa 25 $</li>
+</ul></li>
 <li><a href='https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf' title=''>Cheat Sheet</a></li>
 </ul>
 

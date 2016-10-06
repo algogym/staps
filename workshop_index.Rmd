@@ -56,6 +56,14 @@ Der Workshop richtet sich an alle Personen, die R bei der Datenanalyse einsetzen
 install.packages("data.table")
 ```
 * Das Übungsdatenset [herunterladen](datatable_workshop.csv) und in das Arbeitsverzeichnis kopieren
+* Das Übungsdatenset einlesen 
+```{r, eval = FALSE, echo = TRUE}
+dt <- fread("datatable_workshop.csv")
+```
+
+
+
+
 
 # Übungen
 

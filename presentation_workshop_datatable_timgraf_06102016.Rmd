@@ -272,7 +272,7 @@ with(dt, sapply(split(rt3, list(cond, phase)), mean, na.rm=TRUE))
 
 
 
-## Data.table. <span style="color:blue">by</span> und .SD {.smaller}
+## Data.table. <span style="color:blue">by</span> und .SD 
 
 
 **Data.table**
@@ -501,8 +501,8 @@ vignette("datatable-reshape")
 
 * [Github-Webseite des Pakets](https://github.com/Rdatatable/data.table/wiki/Getting-started)
 * [Datacamp](http://www.datacamp.com)
- + Basics sind kostenlos
- + Weiterführende Kurse für etwa 25 $
+    + Basics sind kostenlos
+    + Weiterführende Kurse für etwa 25 $
 * [Cheat Sheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
 
 
